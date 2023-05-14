@@ -26,7 +26,14 @@ std::vector<u32> squareIndices =
 };
 
 
-math::vec3u recomputeDispatchSize(math::vec2u const& dims)
+struct ComputeGroupSizes
+{
+	math::vec3u localGroupSize;
+	math::vec3u dispatchSize;
+};
+
+
+ComputeGroupSizes recomputeDispatchSize(math::vec2u const& dims)
 {
 	math::vec3u localWorkgroupSize{32, 1, 1};
 	i32 		max_group_invoc;
@@ -55,10 +62,9 @@ math::vec3u recomputeDispatchSize(math::vec2u const& dims)
 	);
 	
 	
-	return {
-		__scast(u32, tmp_cvt.x),
-		__scast(u32, tmp_cvt.y),
-		1u
+	return ComputeGroupSizes{
+		localWorkgroupSize,
+		{ __scast(u32, tmp_cvt.x), __scast(u32, tmp_cvt.y), 1u }	
 	};
 }
 
@@ -117,7 +123,7 @@ int raytracer()
 	u32 windowWidth = 1280, windowHeight = 720;
 	i32 uniform_samplesppx = 16;
 	f32 uniform_randnum    = randnorm32f();
-	math::vec3u computeGroups = recomputeDispatchSize({ windowWidth, windowHeight });
+	ComputeGroupSizes computeGroups;
 
 	Program shader, compute;
 	VertexArray   vao;
@@ -154,7 +160,7 @@ int raytracer()
 
 
 
-
+	computeGroups = recomputeDispatchSize({ windowWidth, windowHeight });
 	shader.fromFiles({
 		{ "C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader.vert", GL_VERTEX_SHADER   },
 		{ "C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader.frag", GL_FRAGMENT_SHADER }
@@ -162,7 +168,7 @@ int raytracer()
 	compute.fromFilesCompute({
 			{ "C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader.comp", GL_COMPUTE_SHADER },
 		},
-		computeGroups
+		computeGroups.localGroupSize
 	);
 
 	ifcrash(!shader.success() || !compute.success());
@@ -219,14 +225,14 @@ int raytracer()
         context->glfw.procUpcomingEvents();
 		if(focused)
 		{
-			renderImGui(uniform_samplesppx, uniform_randnum, computeGroups);
+			renderImGui(uniform_samplesppx, uniform_randnum, computeGroups.dispatchSize);
 			if(!paused)
 			{
 				/* Compute Shader Pass Here */
 				compute.bind();
 				compute.uniform1f("u_dt", uniform_randnum);
 				compute.uniform1i("samples_per_pixel", uniform_samplesppx);
-				glDispatchCompute(computeGroups.x, computeGroups.y, computeGroups.z);
+				glDispatchCompute(computeGroups.dispatchSize.x, computeGroups.dispatchSize.y, computeGroups.dispatchSize.z);
 				glMemoryBarrier(GL_ALL_BARRIER_BITS);
 				
 				
@@ -260,7 +266,7 @@ int raytracer()
 				tex.bindToImage(0, TEX_IMAGE_WRITE_ONLY_ACCESS);
 				
 				computeGroups = recomputeDispatchSize({ windowWidth, windowHeight });
-				compute.reloadCompute(computeGroups);
+				compute.reloadCompute(computeGroups.localGroupSize);
 			}
 		}
 

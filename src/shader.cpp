@@ -162,9 +162,9 @@ void Program::fromFilesCompute(std::vector<ShaderData> const& shaderInfo, math::
 
 
     std::array<u32, 3> numberToStringSize = {
-        __scast(u32, std::ceil( std::log10(localWorkgroupSize.x + (localWorkgroupSize.x != 1u)) )  ),
-        __scast(u32, std::ceil( std::log10(localWorkgroupSize.y + (localWorkgroupSize.y != 1u)) )  ),
-        __scast(u32, std::ceil( std::log10(localWorkgroupSize.z + (localWorkgroupSize.z != 1u)) )  ) 
+        __scast(u32, std::ceil( std::log10(localWorkgroupSize.x + (localWorkgroupSize.x == 1u)) )  ),
+        __scast(u32, std::ceil( std::log10(localWorkgroupSize.y + (localWorkgroupSize.y == 1u)) )  ),
+        __scast(u32, std::ceil( std::log10(localWorkgroupSize.z + (localWorkgroupSize.z == 1u)) )  ) 
     };
     std::array<char*, 3> numberToString = {
         __rcast(char*, malloc(  1 + numberToStringSize[0]  )),
@@ -200,9 +200,9 @@ void Program::fromFilesCompute(std::vector<ShaderData> const& shaderInfo, math::
         loadFile(shaders[i].filepath, &buf.size, sources[i].data());
         
 
-        positions[0] = strstr(sources[i].data(), substrings[0]) + 14;
-        positions[1] = strstr(sources[i].data(), substrings[1]) + 14;
-        positions[2] = strstr(sources[i].data(), substrings[2]) + 14;
+        positions[0] = strstr(sources[i].data(), substrings[0]) + 15;
+        positions[1] = strstr(sources[i].data(), substrings[1]) + 15;
+        positions[2] = strstr(sources[i].data(), substrings[2]) + 15;
         memcpy(positions[0], "   ", 3);
         memcpy(positions[1], "   ", 3);
         memcpy(positions[2], "   ", 3);
@@ -240,9 +240,9 @@ void Program::reloadCompute(math::vec3u const& localWorkgroupSize)
 
 
     std::array<u32, 3> numberToStringSize = {
-        __scast(u32, std::ceil( std::log10(localWorkgroupSize.x + (localWorkgroupSize.x != 1u)) )  ),
-        __scast(u32, std::ceil( std::log10(localWorkgroupSize.y + (localWorkgroupSize.y != 1u)) )  ),
-        __scast(u32, std::ceil( std::log10(localWorkgroupSize.z + (localWorkgroupSize.z != 1u)) )  ) 
+        __scast(u32, std::ceil( std::log10(localWorkgroupSize.x + (localWorkgroupSize.x == 1u)) )  ),
+        __scast(u32, std::ceil( std::log10(localWorkgroupSize.y + (localWorkgroupSize.y == 1u)) )  ),
+        __scast(u32, std::ceil( std::log10(localWorkgroupSize.z + (localWorkgroupSize.z == 1u)) )  ) 
     };
     std::array<char*, 3> numberToString = {
         __rcast(char*, malloc(  1 + numberToStringSize[0]  )),
@@ -274,9 +274,9 @@ void Program::reloadCompute(math::vec3u const& localWorkgroupSize)
         loadFile(shaders[i].filepath, &buf.size, sources[i].data());
         
 
-        positions[0] = strstr(sources[i].data(), substrings[0]) + 14;
-        positions[1] = strstr(sources[i].data(), substrings[1]) + 14;
-        positions[2] = strstr(sources[i].data(), substrings[2]) + 14;
+        positions[0] = strstr(sources[i].data(), substrings[0]) + 15;
+        positions[1] = strstr(sources[i].data(), substrings[1]) + 15;
+        positions[2] = strstr(sources[i].data(), substrings[2]) + 15;
         memcpy(positions[0], "   ", 3);
         memcpy(positions[1], "   ", 3);
         memcpy(positions[2], "   ", 3);
