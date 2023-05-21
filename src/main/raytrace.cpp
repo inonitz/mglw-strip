@@ -165,6 +165,8 @@ int raytracer()
 			{ "C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.comp", GL_COMPUTE_SHADER },
 	}); 
 	compute.resizeLocalWorkGroup(0, invocDims.localGroup);
+	ifcrashdo(shader.compile()  == GL_FALSE, debug_message("Problem Compiling Vertex-Fragment Shader\n"));
+	ifcrashdo(compute.compile() == GL_FALSE, debug_message("Problem Compiling Compute Shader\n")		);
 
 
 	vbo.create(BufferDescriptor{ 
@@ -210,8 +212,6 @@ int raytracer()
 
 
 	/* Main Loop */
-	ifcrashdo(shader.compile()  == GL_FALSE, debug_message("Problem Compiling Vertex-Fragment Shader\n"));
-	ifcrashdo(compute.compile() == GL_FALSE, debug_message("Problem Compiling Compute Shader\n")		);
 	context->glfw.unlockCursor();
 	running = !context->glfw.shouldClose() && !isKeyPressed(KeyCode::ESCAPE);
 	while (running)
@@ -245,19 +245,8 @@ int raytracer()
 				vao.bind();
 				glDrawElements(GL_TRIANGLES, squareIndices.size(), GL_UNSIGNED_INT, 0);
 			}
-
-
-			//context->glfw.setCursorMode( !paused);
-            if(refresh[0]) {
-                shader.refreshFromFiles();
-                refresh[0] = !shader.compile();
-            }
-            if(refresh[1]) {
-				compute.resizeLocalWorkGroup(0, invocDims.localGroup);
-				refresh[1] = !compute.compile();
-            }
-
-
+			
+			
 			if(changedResolution)
 			{
 				mark();
@@ -269,18 +258,29 @@ int raytracer()
 				
 				invocDims = recomputeDispatchSize({ windowWidth, windowHeight });
 			}
+
+			//context->glfw.setCursorMode( !paused);
+            if(refresh[0]) {
+				shader.refreshFromFiles();
+                refresh[0] = !shader.compile();
+			}
+            if(refresh[1]) {
+				compute.resizeLocalWorkGroup(0, invocDims.localGroup);
+				refresh[1] = !compute.compile();
+            }
 		}
 
 
         running = !context->glfw.shouldClose() && !isKeyPressed(KeyCode::ESCAPE);
         focused = !context->glfw.minimized();
         paused  = paused ^ isKeyPressed(KeyCode::P);
-		refresh[0] = isKeyPressed(KeyCode::NUM9);
+		refresh[0] = isKeyPressed(KeyCode::NUM9) || changedResolution;
         refresh[1] = isKeyPressed(KeyCode::NUM0) || changedResolution;
 		changedResolution = context->glfw.windowSizeChanged();
 
-
+		mark();
         context->glfw.procOngoingEvents();
+		mark();
 		++context->frameIndex;
 	}
 	context->glfw.close();

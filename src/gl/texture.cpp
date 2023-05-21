@@ -66,7 +66,6 @@ void TextureBuffer::recreateImage(math::vec2u newDims)
 	unbindImage();
 	unbindUnit();
 
-
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(
 		GL_TEXTURE_2D,

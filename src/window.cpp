@@ -111,15 +111,15 @@ void window::procUpcomingEvents()
 void window::procOngoingEvents() 
 {
 	/* end frame */
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	mark(); ImGui::Render();
+	mark(); ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-	windowMinimized  = false;
-	windowSizeChange = false;
-	update_mouse_callback_states();
-	update_key_callback_states();
-	glfwPollEvents();
-	glfwSwapBuffers(handle);
-	// markstr("GLFW ==> Swapped Buffers!");
+	mark(); windowMinimized  = false;
+	mark(); windowSizeChange = false;
+	mark(); update_mouse_callback_states();
+	mark(); update_key_callback_states();
+	mark(); glfwPollEvents();
+	mark(); glfwSwapBuffers(handle);
+	mark(); // markstr("GLFW ==> Swapped Buffers!");
 	return;
 }

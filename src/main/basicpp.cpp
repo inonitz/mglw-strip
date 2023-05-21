@@ -95,6 +95,8 @@ int basicpp()
 	compute.createFrom({
 		{ assetPaths[2], GL_COMPUTE_SHADER }
 	});
+	ifcrashdo(shader.compile()  == GL_FALSE, debug_message("Problem Compiling Vertex-Fragment Shader\n"));
+	ifcrashdo(compute.compile() == GL_FALSE, debug_message("Problem Compiling Compute Shader\n")		);
 
 
 	/* Initialize OpenGL stuff */
@@ -175,12 +177,13 @@ int basicpp()
 
 			context->glfw.setCursorMode( !paused);
             if(refresh[0]) {
-                shader.refreshFromFiles();
-                refresh[0] = shader.compile();
+                shader.refreshShaderSource(0);
+				shader.refreshShaderSource(1);
+                refresh[0] = !shader.compile();
             }
             if(refresh[1]) {
-                compute.refreshFromFiles();
-                refresh[1] = compute.compile();
+				compute.refreshShaderSource(0);
+                refresh[1] = !compute.compile();
             }
 		}
 
