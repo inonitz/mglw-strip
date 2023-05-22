@@ -143,7 +143,7 @@ bool Program::compile()
     
     /* Error Checking For Shader Stage */
     if(!successStatus) {
-        debug_messagefmt("Failed to load Shader Files/Buffers. Failed on shaderID = %u\n", i);
+        debug_messagefmt("Failed to load Shader Files/Buffers. Failed on shaderID = %llu\n", i);
         for(size_t s = 0; s < i; ++s) { /* Delete previously compiled shaders */
             glDeleteShader(shaders[s].id);
             shaders[s].id = DEFAULT32;

@@ -111,15 +111,15 @@ void window::procUpcomingEvents()
 void window::procOngoingEvents() 
 {
 	/* end frame */
-	mark(); ImGui::Render();
-	mark(); ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	mark(); windowMinimized  = false;
-	mark(); windowSizeChange = false;
-	mark(); update_mouse_callback_states();
-	mark(); update_key_callback_states();
-	mark(); glfwPollEvents();
-	mark(); glfwSwapBuffers(handle);
-	mark(); // markstr("GLFW ==> Swapped Buffers!");
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	/* Problem occurs after this ^^^, probably related to textureBuffer. Find out when you come back home. */
+	windowMinimized  = false;
+	windowSizeChange = false;
+	update_mouse_callback_states();
+	update_key_callback_states();
+	glfwPollEvents();
+	glfwSwapBuffers(handle);
+	/* markstr("GLFW ==> Swapped Buffers!"); */
 	return;
 }

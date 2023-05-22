@@ -1,6 +1,7 @@
 #include "raytrace.hpp"
 #include <glad/glad.h>
 #include <ImGui/imgui.h>
+#include <utility>
 #include "util/random.hpp"
 #include "../context.hpp"
 #include "gl/shader2.hpp"
@@ -121,6 +122,18 @@ int raytracer()
 	u32 windowWidth = 1280, windowHeight = 720;
 	i32 uniform_samplesppx = 16;
 	f32 uniform_randnum    = randnorm32f();
+	
+
+	std::array< std::pair<const char*, u32>, 5> shaderStrings = {
+		std::make_pair("C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/", 54),
+		std::make_pair("C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/", 85),
+		std::make_pair("shader.vert", 12),
+		std::make_pair("shader.frag", 12),
+		std::make_pair("shader.comp", 12)
+	};
+	std::array<std::pair<char*, u32>, 3> fullShaderPaths;
+	
+
 	ComputeGroupSizes invocDims;
 	Program shader, compute;
 	VertexArray   vao;
@@ -153,17 +166,28 @@ int raytracer()
 	glEnable(GL_DEPTH_TEST); 
 	glClearColor(0.45f, 1.05f, 0.60f, 1.00f);
 
+	fullShaderPaths[0] = std::make_pair(__scast(char*, malloc(300)), 100);
+	fullShaderPaths[1] = std::make_pair(fullShaderPaths[0].first + 100, 100);
+	fullShaderPaths[2] = std::make_pair(fullShaderPaths[0].first + 200, 100);
+	// .first  = buffer ptr .second = buffer size
+	for(size_t i = 0; i < 3; ++i) 
+	{ 
+		memcpy(fullShaderPaths[i].first, shaderStrings[1    ].first, shaderStrings[1    ].second);
+		memcpy(fullShaderPaths[i].first + shaderStrings[1].second, shaderStrings[2 + i].first, shaderStrings[2 + i].second);
+	}
+	debug_messagefmt("Shader paths are: \n%s\n%s\n%s\n", 
+		fullShaderPaths[0].first, 
+		fullShaderPaths[1].first, 
+		fullShaderPaths[2].first
+	);
 
 
 	invocDims = recomputeDispatchSize({ windowWidth, windowHeight });
-	// C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/
 	shader.createFrom({
-		{ "C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.vert", GL_VERTEX_SHADER   },
-		{ "C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.frag", GL_FRAGMENT_SHADER }
+		{ fullShaderPaths[0].first, GL_VERTEX_SHADER   },
+		{ fullShaderPaths[1].first, GL_FRAGMENT_SHADER }
 	});
-	compute.createFrom({
-			{ "C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.comp", GL_COMPUTE_SHADER },
-	}); 
+	compute.createFrom(  {{ fullShaderPaths[2].first, GL_COMPUTE_SHADER }  }); 
 	compute.resizeLocalWorkGroup(0, invocDims.localGroup);
 	ifcrashdo(shader.compile()  == GL_FALSE, debug_message("Problem Compiling Vertex-Fragment Shader\n"));
 	ifcrashdo(compute.compile() == GL_FALSE, debug_message("Problem Compiling Compute Shader\n")		);
@@ -278,9 +302,7 @@ int raytracer()
         refresh[1] = isKeyPressed(KeyCode::NUM0) || changedResolution;
 		changedResolution = context->glfw.windowSizeChanged();
 
-		mark();
         context->glfw.procOngoingEvents();
-		mark();
 		++context->frameIndex;
 	}
 	context->glfw.close();
