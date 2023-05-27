@@ -134,6 +134,7 @@ int raytracer()
 	std::array<std::pair<char*, u32>, 3> fullShaderPaths;
 	
 
+	u8 shaderPathPrependIdx = 0;
 	ComputeGroupSizes invocDims;
 	Program shader, compute;
 	VertexArray   vao;
@@ -170,10 +171,10 @@ int raytracer()
 	fullShaderPaths[1] = std::make_pair(fullShaderPaths[0].first + 100, 100);
 	fullShaderPaths[2] = std::make_pair(fullShaderPaths[0].first + 200, 100);
 	// .first  = buffer ptr .second = buffer size
-	for(size_t i = 0; i < 3; ++i) 
-	{ 
-		memcpy(fullShaderPaths[i].first, shaderStrings[1    ].first, shaderStrings[1    ].second);
-		memcpy(fullShaderPaths[i].first + shaderStrings[1].second, shaderStrings[2 + i].first, shaderStrings[2 + i].second);
+	for(size_t i = 0; i < 3; ++i) { 
+		// .first  = buffer ptr .second = buffer size
+		memcpy(fullShaderPaths[i].first,                                              shaderStrings[shaderPathPrependIdx].first, shaderStrings[shaderPathPrependIdx].second);
+		memcpy(fullShaderPaths[i].first + shaderStrings[shaderPathPrependIdx].second, shaderStrings[2 + i].first, 				shaderStrings[2 + i].second				  );
 	}
 	debug_messagefmt("Shader paths are: \n%s\n%s\n%s\n", 
 		fullShaderPaths[0].first, 
@@ -268,7 +269,7 @@ int raytracer()
 				/* Bind VAO & Draw Here */
 				vao.bind();
 				glDrawElements(GL_TRIANGLES, squareIndices.size(), GL_UNSIGNED_INT, 0);
-			}
+			}	
 			
 			
 			if(changedResolution)
@@ -314,6 +315,7 @@ int raytracer()
 	vbo.destroy();
 	ibo.destroy();
 	context->glfw.destroy();
+	free(fullShaderPaths[0].first);
 	return 0;
 }
 
