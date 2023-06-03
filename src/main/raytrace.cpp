@@ -20,7 +20,9 @@ int raytracer()
 	u8  sphereCount = 13;
 	u32 windowWidth = 1280, windowHeight = 720;
 	i32 		uniform_samplesppx     = 50;
-	i32 		uniform_diffRecursion  = 6;
+	i32 		uniform_diffRecursion  = 10;
+	i32         uniform_imgScatter     = -10;
+	f32 		uniform_imgScatterBase = 1.5f;
 	f32         camViewportWidth;
 	math::vec4f uniform_randnum        = { randnorm32f(), randnorm32f(), randnorm32f(), randnorm32f() };
 	std::array< std::pair<const char*, u32>, 5> shaderStrings;
