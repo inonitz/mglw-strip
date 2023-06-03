@@ -231,7 +231,6 @@ int raytracer()
 			{ GL_TEXTURE_MAG_FILTER, GL_LINEAR 		  },
 		}
 	});
-	tex.bindToImage(0, TEX_IMAGE_WRITE_ONLY_ACCESS);
 
 
 
@@ -252,6 +251,7 @@ int raytracer()
 				compute.bind();
 				compute.uniform1f("u_dt", uniform_randnum);
 				compute.uniform1i("samples_per_pixel", uniform_samplesppx);
+				tex.bindToImage(0, TEX_IMAGE_WRITE_ONLY_ACCESS);
 				glDispatchCompute(
 					invocDims.dispatchGroup.x, 
 					invocDims.dispatchGroup.y, 

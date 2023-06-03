@@ -165,13 +165,13 @@ int basicpp()
 				glDispatchCompute(width, height, 1);
 				glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-				shader.bind();
+				glBindVertexArray(VAO);
 				glBindTextureUnit(0, texture);
+				shader.bind();
 				shader.uniform1i("texData", 0);
 				shader.uniformMatrix4fv("model", modelMatrix);
 				shader.uniformMatrix4fv("view", context->cam.constref());
 				shader.uniformMatrix4fv("projection", context->persp.constref());
-				glBindVertexArray(VAO);
 				glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 			}
 
