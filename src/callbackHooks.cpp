@@ -257,8 +257,7 @@ void glfw_mouse_button_callback(__unused GLFWwindow* window, int button, int act
 
 	if(getMouseButtonState(MouseButton::LEFT) == InputState::PRESS) 
 		p->glfw.unlockCursor();
-	
-	
+
 	debug_messagefmt("[mouse_button_callback][bi=%02u][Before=%u]  [%s] Mouse Button %s  [After=%u]\n", 
 		buttonIndex,
 		before,

@@ -16,25 +16,23 @@ int raytracer()
 		glfw_cursor_position_callback,
 		glfw_mouse_button_callback
 	};
-	bool running, focused = true, paused = false, changedResolution = false, refresh[3] = { false, false, false };
+	bool running, focused = true, paused = false, changedResolution = false, refresh[4] = { false, false, false, false };
 	u8  sphereCount = 13;
 	u32 windowWidth = 1280, windowHeight = 720;
 	i32 		uniform_samplesppx     = 50;
-	i32 		uniform_diffRecursion  = 10;
-	i32         uniform_imgScatter     = -10;
-	f32 		uniform_imgScatterBase = 1.5f;
+	i32 		uniform_diffRecursion  = 6;
 	f32         camViewportWidth;
 	math::vec4f uniform_randnum        = { randnorm32f(), randnorm32f(), randnorm32f(), randnorm32f() };
 	std::array< std::pair<const char*, u32>, 5> shaderStrings;
 	std::array< std::pair<char*,       u32>, 3> fullShaderPaths;
 
-	u8 shaderPathPrependIdx = 0;
+	u8 shaderPathPrependIdx = 1;
 	shaderStrings = {
 		std::make_pair("C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/", 54),
 		std::make_pair("C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/", 85),
 		std::make_pair("shader.vert", 12),
 		std::make_pair("shader.frag", 12),
-		std::make_pair("shader_diffuse.comp", 20)
+		std::make_pair("shader_diffuse_old.comp", 24)
 	};
 	fullShaderPaths[0] = std::make_pair(__scast(char*, malloc(300)), 100);
 	fullShaderPaths[1] = std::make_pair(fullShaderPaths[0].first + 100, 100);
@@ -61,10 +59,10 @@ int raytracer()
 
 	sceneDescription = __scast(SceneData*, malloc( sizeof(SceneData) + (sphereCount - 1) * sizeof(Sphere) ));
 	sceneDescription->transform = {
-		math::vec3f{ 0.0f, 0.0f, 0.0f },         					  /* Position 				*/
-		math::vec2f{ context->glfw.aspectRatio<f32>() * 2.0f, 2.0f }, /* Viewport Width, height */
-		1.0f,                           							  /* focal length 			*/
-		0                               							  /* reserved 				*/
+		math::vec3f{ 0.0f, 0.0f, 0.0f }, /* Position 				*/
+		math::vec2f{ 2.0f, 2.0f }, 		 /* Viewport Width, height */
+		1.0f,                           		/* focal length 		  */
+		0                               		/* reserved 			  */
 	};
 	sceneDescription->curr_size = 2;
 	sceneDescription->max_size  = 13;
@@ -83,8 +81,8 @@ int raytracer()
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(gl_debug_message_callback, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-		// glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+		// glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 	);
 	glEnable(GL_DEPTH_TEST); 
 	glClearColor(0.45f, 1.05f, 0.60f, 1.00f);
@@ -138,6 +136,7 @@ int raytracer()
 			{ GL_TEXTURE_MAG_FILTER, GL_LINEAR 		  },
 		}
 	});
+	tex.bindToUnit(0);
 	tex.bindToImage(0, TEX_IMAGE_WRITE_ONLY_ACCESS);
 
 
@@ -168,9 +167,7 @@ int raytracer()
 			renderImGui(
 				sceneDescription,
 				uniform_samplesppx, 
-				uniform_diffRecursion , 
-				uniform_imgScatter,
-				uniform_imgScatterBase,
+				uniform_diffRecursion, 
 				uniform_randnum,
 				invocDims.dispatchGroup
 			);
@@ -182,8 +179,6 @@ int raytracer()
 				compute.uniform4fv("u_dt"         , uniform_randnum.begin());
 				compute.uniform1i("u_samplesPpx"  , uniform_samplesppx     );
 				compute.uniform1i("u_recurseDepth", uniform_diffRecursion  );
-				compute.uniform1i("u_scatterFactor", uniform_imgScatter    );
-				compute.uniform1f("u_scatterBase"  , uniform_imgScatterBase);
 				glDispatchCompute(
 					invocDims.dispatchGroup.x, 
 					invocDims.dispatchGroup.y, 
@@ -213,8 +208,18 @@ int raytracer()
 				compute.refreshFromFiles();
 				compute.resizeLocalWorkGroup(0, invocDims.localGroup);
 			}
-            if(refresh[2]) {
-				refresh[2] = !compute.compile();
+			if(refresh[2]) {
+				camViewportWidth = context->glfw.aspectRatio<f32>() * sceneDescription->transform.viewport.y;
+				ssbo.bind();
+				ssbo.update(offsetof(CameraTransform, viewport.x), { 
+					&camViewportWidth,
+					4,
+					{}
+				});
+				ssbo.unbind();
+			}
+            if(refresh[3]) {
+				refresh[3] = !compute.compile();
             }
 
 
@@ -226,16 +231,6 @@ int raytracer()
 				tex.bindToUnit(0);
 				tex.bindToImage(0, TEX_IMAGE_WRITE_ONLY_ACCESS);
 
-
-				camViewportWidth = context->persp.__.aspectRatio * sceneDescription->transform.viewport.y;
-				ssbo.bind();
-				ssbo.update(offsetof(CameraTransform, viewport.x), { 
-					&camViewportWidth,
-					4,
-					{}
-				});
-				ssbo.unbind();
-
 				invocDims = recomputeDispatchSize({ windowWidth, windowHeight });
 			}
 		}
@@ -244,9 +239,10 @@ int raytracer()
         running = !context->glfw.shouldClose() && !isKeyPressed(KeyCode::ESCAPE);
         focused = !context->glfw.minimized();
         paused  = paused ^ isKeyPressed(KeyCode::P);
-		refresh[0] = isKeyPressed(KeyCode::NUM8);
-		refresh[1] = isKeyPressed(KeyCode::NUM9);
-        refresh[2] = isKeyPressed(KeyCode::NUM0);
+		refresh[0] = isKeyPressed(KeyCode::NUM7);
+		refresh[1] = isKeyPressed(KeyCode::NUM8);
+		refresh[2] = isKeyPressed(KeyCode::NUM9);
+        refresh[3] = isKeyPressed(KeyCode::NUM0);
 		changedResolution = context->glfw.windowSizeChanged();
 
 
