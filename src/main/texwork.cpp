@@ -200,6 +200,11 @@ int make_texture_resize_work()
         glDrawElements(GL_TRIANGLES, iboData.size(), GL_UNSIGNED_INT, 0);
 
 
+		if(programStates[2]) {
+			basic_shader.refreshShaderSource(0);
+			basic_shader.refreshShaderSource(1);
+			programStates[4] = basic_shader.compile();
+		}
 
 
         if(programStates[3])
@@ -215,6 +220,7 @@ int make_texture_resize_work()
         }
 
 
+		programStates[2] = isKeyPressed(KeyCode::NUM5);
         programStates[3] = ctx->glfw.windowSizeChanged();
         ctx->glfw.procOngoingEvents();
     }
