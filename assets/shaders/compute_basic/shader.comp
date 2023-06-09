@@ -15,5 +15,9 @@ void main()
         1.0f
     );
 
+    value = vec4(
+        vec2(texelCoord) / vec2(gl_NumWorkGroups.xy * gl_WorkGroupSize.xy),
+        0.0f, 1.0f
+    );
     imageStore(imageOut, texelCoord, value);
 }
