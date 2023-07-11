@@ -27,7 +27,7 @@ void PVMTransform::create(
     m_view.create(
         initialPosition, 
         initialDirection, 
-        { 5.0f, 0.3f }
+        { 7.5f, 1.5f }
     );
     return;
 }

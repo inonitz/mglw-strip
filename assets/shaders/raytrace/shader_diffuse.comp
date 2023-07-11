@@ -64,18 +64,18 @@ layout(std430, binding=3) readonly buffer SceneObjectToMaterialBuffer
 };
 
 
-layout(std140, binding=5) uniform SceneBlock { /* Migrate from SSBO to UBOs using this Struct */
-    mat4 cameraInvView;
-    mat4 cameraInvProj;
-    vec3 cameraOrigin;
-    uint activeObjects;
-    uint activeMaterials;
-    uint reserved1[2];
-    Sphere   objects[450];          /* length = activeObjects   */
-    Material materials[450];        /* length = activeMaterials */
-    uint     objectToMaterial[450]; /* length = activeObjects   */
-    /* because UBOs can be at-most 16KiB according to the spec, this guarantees 450 Objects & materials AT MOST */
-};
+// layout(std140, binding=5) uniform SceneBlock { /* Migrate from SSBO to UBOs using this Struct */
+//     mat4 cameraInvView;
+//     mat4 cameraInvProj;
+//     vec3 cameraOrigin;
+//     uint activeObjects;
+//     uint activeMaterials;
+//     uint reserved1[2];
+//     Sphere   objects[450];          /* length = activeObjects   */
+//     Material materials[450];        /* length = activeMaterials */
+//     uint     objectToMaterial[450]; /* length = activeObjects   */
+//     /* because UBOs can be at-most 16KiB according to the spec, this guarantees 450 Objects & materials AT MOST */
+// };
 
 
 

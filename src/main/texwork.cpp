@@ -37,15 +37,13 @@ int make_texture_resize_work()
 	i32 samplesPerPixel       = 40;
 	i32 diffuseRecursionDepth = 8;
 	f32 randomNorm = randnorm32f();
-	// std::array<const char*, 3> shaderFiles = {
-	// 	"C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.vert",
-	// 	"C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.frag",
-	// 	"C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader_diffuse.comp"
-	// };
 	std::array<const char*, 3> shaderFiles = {
-		"C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader.vert",
-		"C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader.frag",
-		"C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader_diffuse.comp"
+		"C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.vert",
+		"C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader.frag",
+		"C:/CTools/Projects/mglw-strip/assets/shaders/raytrace/shader_diffuse.comp"
+		// "C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader.vert",
+		// "C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader.frag",
+		// "C:/Program Files/Programming Utillities/CProjects/mglw-strip/assets/shaders/raytrace/shader_diffuse.comp"
 	};
 	std::vector<Material> 				  materials;
 	std::vector<ObjectMaterialDescriptor> objToMaterialMap;
